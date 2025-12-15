@@ -1,0 +1,130 @@
+{
+  "ecr_identification": {
+    "ecr_number": "",
+    "date_submitted": "",
+    "originator": "",
+    "department": "",
+    "email": "",
+    "phone": ""
+  },
+  "priority_and_robot_info": {
+    "priority_level": "",
+    "robot_model": "",
+    "serial_number_range": "",
+    "all_models": false
+  },
+  "problem_statement": {
+    "issue_description": "",
+    "source_origin": [],
+    "source_origin_other": "",
+    "failure_frequency": "",
+    "severity": "",
+    "customer_impact": false
+  },
+  "proposed_change": {
+    "affected_subsystems": [],
+    "affected_subsystems_other": "",
+    "detailed_description": "",
+    "affected_components": {
+      "part_numbers": "",
+      "drawing_specification_changes": "",
+      "software_version_changes": ""
+    },
+    "justification": ""
+  },
+  "impact_analysis": {
+    "safety_impact": {
+      "affects_safety_functions": false,
+      "safety_description": "",
+      "safety_systems_affected": ""
+    },
+    "performance_impact": {
+      "speed_throughput": "",
+      "payload_capacity": "",
+      "battery_life": "",
+      "navigation_accuracy": "",
+      "reliability_mtbf": ""
+    },
+    "interchangeability": {
+      "old_new_parts_mixed": false,
+      "forward_compatible": false,
+      "backward_compatible": false
+    },
+    "field_retrofit": {
+      "retrofit_required": false,
+      "units_affected": "",
+      "software_update_required": false,
+      "ota_capable": false,
+      "hardware_replacement_required": false,
+      "customer_notification_required": false
+    },
+    "supply_chain": {
+      "new_suppliers_required": false,
+      "supplier_qualification_needed": false,
+      "lead_time_impact": "",
+      "moq_considerations": ""
+    }
+  },
+  "cost_analysis": {
+    "engineering_development_costs": "",
+    "tooling_fixturing_changes": "",
+    "unit_cost_impact": "",
+    "inventory_obsolescence": "",
+    "field_retrofit_costs": "",
+    "testing_validation_costs": "",
+    "certification_compliance_costs": "",
+    "total_estimated_cost": "",
+    "expected_savings_benefits": ""
+  },
+  "testing_validation": {
+    "required_testing": [],
+    "required_testing_other": "",
+    "test_plan_reference": "",
+    "estimated_testing_duration": ""
+  },
+  "implementation_plan": {
+    "proposed_effectivity_date": "",
+    "effectivity_point_type": "",
+    "effectivity_point_value": "",
+    "lead_time_required": "",
+    "documentation_updates_required": []
+  },
+  "attachments": {
+    "attachment_types": [],
+    "attachment_other": ""
+  },
+  "approval_workflow": {
+    "engineering_manager": {
+      "name": "",
+      "date": ""
+    },
+    "quality_manager": {
+      "name": "",
+      "date": ""
+    },
+    "safety_engineer": {
+      "name": "",
+      "date": ""
+    },
+    "software_lead": {
+      "name": "",
+      "date": ""
+    },
+    "manufacturing_operations": {
+      "name": "",
+      "date": ""
+    },
+    "supply_chain": {
+      "name": "",
+      "date": ""
+    },
+    "customer_service": {
+      "name": "",
+      "date": ""
+    },
+    "final_approval": {
+      "name": "",
+      "date": ""
+    }
+  }
+}

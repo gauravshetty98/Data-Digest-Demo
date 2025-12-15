@@ -1,0 +1,162 @@
+{
+  "field_descriptions": {
+    "ecr_identification": {
+      "ecr_number": "Auto-generated ECR tracking number. Use 'TBD' or 'AUTO' if not yet assigned.",
+      "date_submitted": "Date in YYYY-MM-DD format",
+      "originator": "Name of person submitting the ECR",
+      "department": "Department or team name",
+      "email": "Contact email address",
+      "phone": "Contact phone number"
+    },
+    "priority_and_robot_info": {
+      "priority_level": "Must be one of: CRITICAL, HIGH, MEDIUM, LOW",
+      "robot_model": "Robot model name or number",
+      "serial_number_range": "Serial number range affected based on the component ID(e.g., '1.1-1.3' or 'All')",
+      "all_models": "Boolean: true if all models are affected"
+    },
+    "problem_statement": {
+      "issue_description": "Clear description of the problem or opportunity",
+      "source_origin": "Array of strings from allowed values",
+      "source_origin_other": "If 'Other' is selected, specify here",
+      "failure_frequency": "How often the issue occurs",
+      "severity": "Must be one of: Critical, High, Medium, Low",
+      "customer_impact": "Boolean: true if deployed units are affected"
+    },
+    "proposed_change": {
+      "affected_subsystems": "Array of strings from allowed values",
+      "affected_subsystems_other": "If 'Other' is selected, specify here",
+      "detailed_description": "Detailed description of the proposed change",
+      "affected_components": {
+        "part_numbers": "Comma-separated list of affected part numbers",
+        "drawing_specification_changes": "Drawing or specification references",
+        "software_version_changes": "Software version numbers"
+      },
+      "justification": "Business case: why this change is necessary"
+    },
+    "impact_analysis": {
+      "safety_impact": {
+        "affects_safety_functions": "Boolean: true if safety systems are affected",
+        "safety_description": "Description of safety impact",
+        "safety_systems_affected": "E-Stop, Collision Avoidance, Speed Limiting, Personnel Detection"
+      },
+      "performance_impact": {
+        "speed_throughput": "Impact on robot speed/throughput",
+        "payload_capacity": "Impact on payload capacity",
+        "battery_life": "Impact on battery life/runtime",
+        "navigation_accuracy": "Impact on navigation accuracy",
+        "reliability_mtbf": "Impact on reliability/MTBF"
+      },
+      "interchangeability": {
+        "old_new_parts_mixed": "Boolean: Can old and new parts be mixed?",
+        "forward_compatible": "Boolean: Does new part work in old robots?",
+        "backward_compatible": "Boolean: Does old part work with new design?"
+      },
+      "field_retrofit": {
+        "retrofit_required": "Boolean: Is field retrofit required?",
+        "units_affected": "Number of deployed units affected",
+        "software_update_required": "Boolean: Is software update needed?",
+        "ota_capable": "Boolean: Can update be done OTA (over-the-air)?",
+        "hardware_replacement_required": "Boolean: Is hardware replacement needed?",
+        "customer_notification_required": "Boolean: Do customers need to be notified?"
+      },
+      "supply_chain": {
+        "new_suppliers_required": "Boolean: Are new suppliers needed?",
+        "supplier_qualification_needed": "Boolean: Is supplier qualification required?",
+        "lead_time_impact": "Description of lead time changes",
+        "moq_considerations": "Minimum Order Quantity considerations"
+      }
+    },
+    "cost_analysis": {
+      "engineering_development_costs": "Dollar amount as string (e.g., '50000')",
+      "tooling_fixturing_changes": "Dollar amount as string",
+      "unit_cost_impact": "Dollar amount per robot as string",
+      "inventory_obsolescence": "Dollar amount as string",
+      "field_retrofit_costs": "Dollar amount as string",
+      "testing_validation_costs": "Dollar amount as string",
+      "certification_compliance_costs": "Dollar amount as string",
+      "total_estimated_cost": "Sum of all costs above",
+      "expected_savings_benefits": "Expected savings or benefits in dollars"
+    },
+    "testing_validation": {
+      "required_testing": "Array of strings from allowed values",
+      "required_testing_other": "If 'Other' is selected, specify here",
+      "test_plan_reference": "Test plan document number or reference",
+      "estimated_testing_duration": "Duration in days/weeks"
+    },
+    "implementation_plan": {
+      "proposed_effectivity_date": "Target implementation date (YYYY-MM-DD)",
+      "effectivity_point_type": "Either 'Serial Number' or 'Production Date'",
+      "effectivity_point_value": "Specific serial number or date",
+      "lead_time_required": "Time needed before implementation",
+      "documentation_updates_required": "Array of strings from allowed values"
+    },
+    "attachments": {
+      "attachment_types": "Array of strings from allowed values",
+      "attachment_other": "If 'Other' is selected, specify here"
+    },
+    "approval_workflow": {
+      "note": "Approvers section - typically filled during approval process, not by LLM"
+    }
+  },
+  "allowed_values": {
+    "priority_level": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+    "severity": ["Critical", "High", "Medium", "Low"],
+    "source_origin": [
+      "Field Failure / Customer Report",
+      "Internal Testing / QA",
+      "Design Improvement",
+      "Cost Reduction Opportunity",
+      "Regulatory / Compliance Requirement",
+      "Supplier-Initiated Change",
+      "Safety Concern",
+      "Other"
+    ],
+    "affected_subsystems": [
+      "Mechanical / Structural",
+      "Electrical / Power Systems",
+      "Sensors (LiDAR, Cameras, Ultrasonic, etc.)",
+      "Control Systems / Electronics",
+      "Software / Firmware",
+      "Safety Systems (E-Stop, Collision Avoidance, Speed Limiting)",
+      "Communication / Network",
+      "Battery / Charging System",
+      "Navigation / Localization",
+      "Other"
+    ],
+    "required_testing": [
+      "Functional Testing",
+      "Safety Validation (Critical for safety-related changes)",
+      "Environmental Testing (Temperature, Humidity, Dust)",
+      "Endurance / Reliability Testing",
+      "EMC / EMI Testing",
+      "Software Regression Testing",
+      "Integration Testing",
+      "Navigation / Localization Testing",
+      "Payload / Stress Testing",
+      "Battery / Power Testing",
+      "Customer Acceptance Testing",
+      "Other"
+    ],
+    "documentation_updates_required": [
+      "User Manual",
+      "Maintenance Guide",
+      "Installation Instructions",
+      "Service Bulletins",
+      "Safety Documentation",
+      "Training Materials",
+      "Spare Parts Catalog",
+      "Other"
+    ],
+    "attachment_types": [
+      "Photos or videos of the issue",
+      "Failure analysis reports",
+      "Proposed drawings or CAD files",
+      "Test data or results",
+      "Risk assessment (FMEA for safety-related changes)",
+      "Customer feedback or complaints",
+      "Supplier documentation",
+      "Software code or version control references",
+      "Other"
+    ]
+  }
+}

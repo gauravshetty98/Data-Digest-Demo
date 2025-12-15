@@ -1,0 +1,157 @@
+{
+  "ecr_identification": {
+    "ecr_number": "ECR-2025-0017",
+    "date_submitted": "2025-12-13",
+    "originator": "Gaurav Shetty",
+    "department": "Warehouse Robotics - Reliability",
+    "email": "gaurav.shetty276@gmail.com",
+    "phone": "+1 (555) 014-2291"
+  },
+  "priority_and_robot_info": {
+    "priority_level": "HIGH",
+    "robot_model": "WR-450 Autonomous Mobile Robot (AMR)",
+    "serial_number_range": "SN 0450-2100 to SN 0450-2899",
+    "all_models": false
+  },
+  "problem_statement": {
+    "issue_description": "During peak pallet moves, the AMR intermittently triggers an emergency slow-down due to false-positive obstacle detections on the front LiDAR. This causes stop-and-go behavior, queueing in narrow aisles, and occasional mission aborts.\n\nLog review suggests the issue correlates with reflective shrink-wrap + low-angle scans; the filter thresholds in the current firmware appear too sensitive.",
+    "source_origin": [
+      "Field Failure / Customer Report",
+      "Internal Testing / QA"
+    ],
+    "source_origin_other": "",
+    "failure_frequency": "Intermittent (~1 in 200 missions; higher in reflective aisles)",
+    "severity": "High",
+    "customer_impact": true
+  },
+  "proposed_change": {
+    "affected_subsystems": [
+      "Sensors (LiDAR, Cameras, Ultrasonic, etc.)",
+      "Navigation / Localization",
+      "Software / Firmware",
+      "Safety Systems (E-Stop, Collision Avoidance, Speed Limiting)"
+    ],
+    "affected_subsystems_other": "",
+    "detailed_description": "1) Firmware update: adjust LiDAR obstacle-cluster filtering to reduce false positives on high-reflectivity returns while preserving safety margins.\n2) Sensor mount shim: add a 1.5mm spacer to slightly adjust the LiDAR pitch angle to reduce floor/reflective-wrap artifacts in the near field.\n3) Calibration update: re-run factory calibration routine post-shim for affected serials.",
+    "affected_components": {
+      "part_numbers": "LDR-22-008 (Front LiDAR Assembly), SHIM-01-001 (New), FAST-SS-M4x12 (existing)",
+      "drawing_specification_changes": "Update DRW-LDR-22-008 Rev C \u2192 Rev D to include shim + torque note.",
+      "software_version_changes": "nav-fw v3.8.2 \u2192 v3.8.3 (LiDAR filter threshold + reflective return handling)"
+    },
+    "justification": "Reduces stop-and-go events and mission aborts in customer sites with reflective packaging, improving throughput and reducing support tickets. Change is low risk and can be rolled out via OTA for firmware plus a simple field shim where required."
+  },
+  "impact_analysis": {
+    "safety_impact": {
+      "affects_safety_functions": true,
+      "safety_description": "The change modifies perception filtering used by collision avoidance. Safety validation and regression testing are required to ensure detection performance remains within spec.",
+      "safety_systems_affected": "Collision avoidance / speed limiting; perception pipeline thresholds"
+    },
+    "performance_impact": {
+      "speed_throughput": "+6% estimated aisle throughput (reduced unnecessary slow-downs)",
+      "payload_capacity": "No change",
+      "battery_life": "+1\u20132% (less stop/start acceleration)",
+      "navigation_accuracy": "No change expected; verify in localization regression",
+      "reliability_mtbf": "Expected improvement (reduced mission aborts); target +10% MTBF for perception faults"
+    },
+    "interchangeability": {
+      "old_new_parts_mixed": true,
+      "forward_compatible": true,
+      "backward_compatible": true
+    },
+    "field_retrofit": {
+      "retrofit_required": true,
+      "units_affected": "Approx. 320 deployed units in reflective-wrap customer environments",
+      "software_update_required": true,
+      "ota_capable": true,
+      "hardware_replacement_required": false,
+      "customer_notification_required": true
+    },
+    "supply_chain": {
+      "new_suppliers_required": false,
+      "supplier_qualification_needed": false,
+      "lead_time_impact": "Shim can be sourced internally; <2 weeks for first batch",
+      "moq_considerations": "MOQ 500 units if externalized; otherwise printed/in-house cut"
+    }
+  },
+  "cost_analysis": {
+    "engineering_development_costs": "$18,000 (firmware + validation)",
+    "tooling_fixturing_changes": "$0 (no new fixtures required)",
+    "unit_cost_impact": "+$0.35/unit (shim + packaging)",
+    "inventory_obsolescence": "$0 (no hard replacement of existing LiDAR assemblies)",
+    "field_retrofit_costs": "$12,000 (labor + travel estimate for affected sites where shim is required)",
+    "testing_validation_costs": "$7,500 (lab + pilot run)",
+    "certification_compliance_costs": "$0 (no new certifications expected; safety doc update only)",
+    "total_estimated_cost": "$37,850",
+    "expected_savings_benefits": "Reduced support tickets + downtime; est. $60k/year support savings across top customers"
+  },
+  "testing_validation": {
+    "required_testing": [
+      "Functional Testing",
+      "Software Regression Testing",
+      "Integration Testing",
+      "Navigation / Localization Testing",
+      "Payload / Stress Testing",
+      "Endurance / Reliability Testing",
+      "Safety Validation (Critical for safety-related changes)"
+    ],
+    "required_testing_other": "",
+    "test_plan_reference": "TP-WR450-PERCEP-019 (LiDAR reflective returns) + REG-NAV-042",
+    "estimated_testing_duration": "2.5 weeks (lab) + 1 week pilot"
+  },
+  "implementation_plan": {
+    "proposed_effectivity_date": "2026-01-15",
+    "effectivity_point_type": "Serial Number",
+    "effectivity_point_value": "SN 0450-2100 and later (firmware OTA); shim retrofit for flagged sites only",
+    "lead_time_required": "3\u20134 weeks (firmware release + pilot + shim kitting)",
+    "documentation_updates_required": [
+      "Maintenance Guide",
+      "Service Bulletins",
+      "Training Materials",
+      "Safety Documentation"
+    ]
+  },
+  "attachments": {
+    "attachment_types": [
+      "Photos or videos of the issue",
+      "Failure analysis reports",
+      "Test data or results",
+      "Software code or version control references",
+      "Customer feedback or complaints"
+    ],
+    "attachment_other": ""
+  },
+  "approval_workflow": {
+    "engineering_manager": {
+      "name": "Alicia Tran",
+      "date": "2025-12-13"
+    },
+    "quality_manager": {
+      "name": "Marcus Patel",
+      "date": "2025-12-14"
+    },
+    "safety_engineer": {
+      "name": "Elena Rodr\u00edguez",
+      "date": "2025-12-14"
+    },
+    "software_lead": {
+      "name": "Noah Kim",
+      "date": "2025-12-13"
+    },
+    "manufacturing_operations": {
+      "name": "Priya Nair",
+      "date": "2025-12-16"
+    },
+    "supply_chain": {
+      "name": "Daniel Brooks",
+      "date": "2025-12-16"
+    },
+    "customer_service": {
+      "name": "Samantha Lee",
+      "date": "2025-12-17"
+    },
+    "final_approval": {
+      "name": "VP Engineering (TBD)",
+      "date": ""
+    }
+  }
+}

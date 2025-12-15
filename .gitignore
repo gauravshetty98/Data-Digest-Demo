@@ -1,0 +1,22 @@
+# secrets
+.env
+**/.env
+
+# python
+__pycache__/
+**/__pycache__/
+*.pyc
+.venv/
+**/.venv/
+.ipynb_checkpoints/
+
+# node / react
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+build/
+**/build/
+
+# misc
+.DS_Store
