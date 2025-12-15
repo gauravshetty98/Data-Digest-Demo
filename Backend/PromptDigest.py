@@ -6,6 +6,10 @@ from typing import Optional
 import pandas as pd
 import re
 import json
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent  # folder where this .py lives
+
 
 
 def get_manufacturing_digest_prompt(messages: str, component_details: str) -> str:
@@ -165,10 +169,14 @@ def get_ecr_editing_prompt(discussion_summaries: str, latest_updates: str, compo
                            additional_details: str, product: str, version: str, component_name: str, internal_part_name: str,
                             quantity: str, material: str, category: str, mass: str, length: str, 
                             tessellation_quality: str, finish: str, notes: str, ):
-    with open('/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_JSON_TEMPLATE/ecr_template.json', 'r') as f:
+    
+    template_path = BASE_DIR / "ECR_JSON_TEMPLATE" / "ecr_template.json"
+    field_defs_path = BASE_DIR / "ECR_JSON_TEMPLATE" / "ecr_field_definitions.json"
+
+    with open(template_path, 'r') as f:
         ECR_TEMPLATE = json.load(f)
 
-    with open('/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_JSON_TEMPLATE/ecr_field_definitions.json', 'r') as f:  
+    with open(field_defs_path, 'r') as f:  
         FIELD_DEFINITIONS = json.load(f)
     
     system_prompt = """You are an expert Engineering Change Request (ECR) assistant for warehouse robotics.

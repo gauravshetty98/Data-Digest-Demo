@@ -14,16 +14,23 @@ from docxtpl import DocxTemplate
 import json
 from datetime import datetime
 from sqlalchemy import text
+from pathlib import Path
+
 
 # Load environment variables
 load_dotenv()
+BASE_DIR = Path(__file__).resolve().parent          # Backend/
+DOC_DIR  = BASE_DIR / "ECR_document_store"          # Backend/ECR_document_store
+#TEMP_DIR = BASE_DIR / "ECR_JSON_TEMPLATE"
+DOC_DIR.mkdir(parents=True, exist_ok=True)
+
 
 app = FastAPI()
 
 # Enable CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],  # Vite and CRA default ports
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "http://localhost:8080"],  
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -159,10 +166,16 @@ async def create_ecr(request: ECRCreationRequest):
         # Generate unique document ID
         document_id = str(uuid.uuid4())
         document_filename = f"ecr_{document_id}.docx"
-        document_path = f"/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_document_store/{document_filename}"
+
+        document_path = DOC_DIR / f"ecr_{document_id}.docx"
+        document_path = str(document_path)
+        
+        #document_path = f"/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_document_store/{document_filename}"
         
         #Mapping and creating document
-        template_path = "/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_JSON_TEMPLATE/Docxtl_ECR_Template.docx"
+        template_path = BASE_DIR / "ECR_JSON_TEMPLATE" / "Docxtl_ECR_Template.docx"
+        template_path = str(template_path)
+        #template_path = "/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_JSON_TEMPLATE/Docxtl_ECR_Template.docx"
         doc = DocxTemplate(template_path)
         doc.render(ecr_data)
 
@@ -234,7 +247,9 @@ async def get_ecr_document(document_id: str):
     Returns the file for download
     """
     try:
-        document_path = f"/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_document_store/ecr_{document_id}.docx"
+        document_path = DOC_DIR / f"ecr_{document_id}.docx"
+        document_path = str(document_path)
+        #document_path = f"/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_document_store/ecr_{document_id}.docx"
         
         if not os.path.exists(document_path):
             raise HTTPException(status_code=404, detail="ECR document not found")
@@ -252,11 +267,11 @@ async def get_ecr_document(document_id: str):
         raise HTTPException(status_code=500, detail=f"Failed to retrieve ECR: {str(e)}")
     
 
-
-
-
-
 @app.get("/")
 def root():
     """Health check endpoint"""
     return {"status": "ok", "message": "ECR Creation API is running"}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("ECRConnectionAPI:app", host="0.0.0.0", port=8002, reload=True)

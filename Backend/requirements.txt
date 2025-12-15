@@ -1,0 +1,12 @@
+docxtpl==0.20.2
+fastapi==0.124.4
+pandas==2.3.3
+pydantic==2.12.5
+python-dotenv==1.2.1
+rapidfuzz==3.14.3
+Requests==2.32.5
+slack_sdk==3.39.0
+spacy==3.8.11
+SQLAlchemy==2.0.34
+uvicorn==0.38.0
+psycopg2-binary==2.9.11
