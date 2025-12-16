@@ -1,8 +1,7 @@
-const API_BASE_URL = 'http://localhost:8000';  // Your FastAPI server URL
-const MACHINE_DETAILS_API_URL = 'http://localhost:8001';  // Machine details API URL
-const ECR_API_URL = 'http://localhost:8002';  // ECR API URL
-const SUPPLIER_API_URL = 'http://localhost:8003'; 
- // Supplier API URL
+const API_BASE_URL = 'http://52.202.64.132:8000';  // DiscussionDigestAPI base url
+const MACHINE_DETAILS_API_URL = 'http://52.202.64.132:8001';  // DBConnectionAPI
+const ECR_API_URL = 'http://52.202.64.132:8002';  // ECRConnectionAPI
+const SUPPLIER_API_URL = 'http://52.202.64.132:8003'; // SupplierConnectionAPI
 
 export const discussionAPI = {
   // Get all discussions
