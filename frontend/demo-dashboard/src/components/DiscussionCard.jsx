@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Pen, X } from 'lucide-react'
-import { discussionAPI } from '../services/api'
+import { discussionAPI, machineDetailsAPI } from '../services/api'
 
 export default function DiscussionCard({ discussion, onClick, onUpdate }) {
+  const navigate = useNavigate()
   const [hierarchy, setHierarchy] = useState(null)
   const [loadingHierarchy, setLoadingHierarchy] = useState(false)
   const [showEditDialog, setShowEditDialog] = useState(false)
@@ -28,7 +30,14 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
   const category = hasSupplierId ? 'Supply Chain' : 'Design & Technical'
 
   const handleClick = () => {
-    if (componentId && onClick) {
+    // For Supply Chain discussions, navigate to the SC discussion details page
+    if (hasSupplierId && discussionId) {
+      navigate(`/sc-discussion/${discussionId}`)
+    } else if (discussionId) {
+      // For Design & Technical discussions, navigate to DT discussion details page
+      navigate(`/dt-discussion/${discussionId}`)
+    } else if (componentId && onClick) {
+      // Fallback to component page if no discussion ID
       onClick(componentId)
     }
   }
@@ -143,12 +152,20 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
   const fetchHierarchy = async (id) => {
     try {
       setLoadingHierarchy(true)
-      const response = await discussionAPI.getComponentParents(id)
       
-      if (response.success && response.data && response.data.length > 0) {
+      // Fetch both parents and current component in parallel
+      const [parentsResponse, componentResponse] = await Promise.all([
+        discussionAPI.getComponentParents(id),
+        machineDetailsAPI.getComponentById(id)
+      ])
+      
+      const hierarchyParts = []
+      
+      // Add parents if available
+      if (parentsResponse.success && parentsResponse.data && parentsResponse.data.length > 0) {
         // Sort items by their hierarchical path (item field)
         // Items like "1", "1.1", "1.1.3", "1.1.3.2" should be sorted properly
-        const sorted = [...response.data].sort((a, b) => {
+        const sorted = [...parentsResponse.data].sort((a, b) => {
           const aParts = a.item.split('.').map(Number)
           const bParts = b.item.split('.').map(Number)
           
@@ -163,9 +180,21 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
           return 0
         })
         
-        // Build hierarchy string by joining names with " > "
-        const hierarchyString = sorted.map(item => item.name).join(' > ')
-        setHierarchy(hierarchyString)
+        // Add parent names to hierarchy
+        hierarchyParts.push(...sorted.map(item => item.name))
+      }
+      
+      // Add current component name if available
+      if (componentResponse.success && componentResponse.data && componentResponse.data.length > 0) {
+        const currentComponent = componentResponse.data[0]
+        if (currentComponent.name) {
+          hierarchyParts.push(currentComponent.name)
+        }
+      }
+      
+      // Build hierarchy string by joining all parts with " > "
+      if (hierarchyParts.length > 0) {
+        setHierarchy(hierarchyParts.join(' > '))
       } else {
         setHierarchy(null)
       }
@@ -244,17 +273,15 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
 
       {/* Latest Update at the bottom */}
       <div className="pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-gray-900 mb-1">Latest Update:</p>
-            <p className="text-sm text-gray-600">
-              {discussion['Latest Update'] || discussion.latest_update || 'No update available'}
-            </p>
-          </div>
-          <div className="text-xs text-gray-500 ml-4">
+        <div className="flex items-center justify-between mb-1">
+          <p className="text-sm font-medium text-gray-900">Latest Update:</p>
+          <div className="text-xs text-gray-500 whitespace-nowrap ml-4">
             {formatDate(discussion.created_at)}
           </div>
         </div>
+        <p className="text-sm text-gray-600 line-clamp-2 overflow-hidden text-ellipsis">
+          {discussion['Latest Update'] || discussion.latest_update || 'No update available'}
+        </p>
       </div>
     </div>
 
@@ -285,7 +312,7 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
                 name="item_id"
                 value={formData.item_id}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="e.g., 3.2.5.11.1.3"
               />
             </div>
@@ -300,7 +327,7 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
                 value={formData.summary}
                 onChange={handleInputChange}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter discussion summary"
               />
             </div>
@@ -315,7 +342,7 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
                 value={formData.latest_update}
                 onChange={handleInputChange}
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter latest update"
               />
             </div>
@@ -330,7 +357,7 @@ export default function DiscussionCard({ discussion, onClick, onUpdate }) {
                 name="supplier_id"
                 value={formData.supplier_id}
                 onChange={handleInputChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 bg-gray-50 text-gray-900 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Enter supplier ID or leave empty"
               />
             </div>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { discussionAPI } from '../services/api'
+import { discussionAPI, machineDetailsAPI } from '../services/api'
 
 export default function ECRCard({ ecr, onClick }) {
   const navigate = useNavigate()
@@ -10,19 +10,16 @@ export default function ECRCard({ ecr, onClick }) {
   const componentId = ecr.component_id
 
   const handleClick = () => {
-    if (componentId && onClick) {
+    // Navigate to ECR details page if document_id exists
+    if (ecr.document_id) {
+      // Clean document ID - remove ecr_ prefix and .docx extension if present
+      const docId = ecr.document_id.replace('ecr_', '').replace('.docx', '')
+      navigate(`/ecr/${docId}/details`)
+    } else if (componentId && onClick) {
       onClick(componentId)
     }
   }
 
-  const handleReviewClick = (e) => {
-    e.stopPropagation() // Prevent card click from firing
-    if (ecr.document_id) {
-      // Extract document ID without .docx extension if present
-      const docId = ecr.document_id.replace('.docx', '').replace('ecr_', '')
-      navigate(`/ecr/${docId}/review`)
-    }
-  }
 
   useEffect(() => {
     if (componentId) {
@@ -33,12 +30,20 @@ export default function ECRCard({ ecr, onClick }) {
   const fetchHierarchy = async (id) => {
     try {
       setLoadingHierarchy(true)
-      const response = await discussionAPI.getComponentParents(id)
       
-      if (response.success && response.data && response.data.length > 0) {
+      // Fetch both parents and current component in parallel
+      const [parentsResponse, componentResponse] = await Promise.all([
+        discussionAPI.getComponentParents(id),
+        machineDetailsAPI.getComponentById(id)
+      ])
+      
+      const hierarchyParts = []
+      
+      // Add parents if available
+      if (parentsResponse.success && parentsResponse.data && parentsResponse.data.length > 0) {
         // Sort items by their hierarchical path (item field)
         // Items like "1", "1.1", "1.1.3", "1.1.3.2" should be sorted properly
-        const sorted = [...response.data].sort((a, b) => {
+        const sorted = [...parentsResponse.data].sort((a, b) => {
           const aParts = a.item.split('.').map(Number)
           const bParts = b.item.split('.').map(Number)
           
@@ -53,9 +58,21 @@ export default function ECRCard({ ecr, onClick }) {
           return 0
         })
         
-        // Build hierarchy string by joining names with " > "
-        const hierarchyString = sorted.map(item => item.name).join(' > ')
-        setHierarchy(hierarchyString)
+        // Add parent names to hierarchy
+        hierarchyParts.push(...sorted.map(item => item.name))
+      }
+      
+      // Add current component name if available
+      if (componentResponse.success && componentResponse.data && componentResponse.data.length > 0) {
+        const currentComponent = componentResponse.data[0]
+        if (currentComponent.name) {
+          hierarchyParts.push(currentComponent.name)
+        }
+      }
+      
+      // Build hierarchy string by joining all parts with " > "
+      if (hierarchyParts.length > 0) {
+        setHierarchy(hierarchyParts.join(' > '))
       } else {
         setHierarchy(null)
       }
@@ -81,7 +98,6 @@ export default function ECRCard({ ecr, onClick }) {
 
       {/* Component ID at the top */}
       <div className="mb-4">
-        <p className="text-sm text-gray-600 mb-1">Component id:</p>
         <h3 className="text-lg font-semibold text-gray-900">
           {loadingHierarchy ? (
             <span className="text-gray-500">Loading hierarchy...</span>
@@ -101,17 +117,6 @@ export default function ECRCard({ ecr, onClick }) {
         </p>
       </div>
 
-      {/* Review button at the bottom */}
-      <div className="pt-4 border-t border-gray-200">
-        <div className="flex items-center justify-end">
-          <button
-            onClick={handleReviewClick}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-          >
-            Review
-          </button>
-        </div>
-      </div>
     </div>
   )
 }

@@ -9,9 +9,6 @@ export default function ComponentCard({ component, onClick }) {
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
             {component.name || 'Unnamed Component'}
           </h3>
-          <p className="text-sm text-gray-500 font-mono">
-            Item ID: {component.item || 'N/A'}
-          </p>
         </div>
       </div>
 

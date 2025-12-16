@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
 import DiscussionFeed from './components/DiscussionFeed'
@@ -5,31 +6,29 @@ import ComponentsPage from './components/ComponentsPage'
 import ComponentDetail from './components/ComponentDetail'
 import SuppliersPage from './components/SuppliersPage'
 import SupplierDetail from './components/SupplierDetail'
-import ECRReview from './components/ECRReview'
+import SCDiscussionDetails from './components/SCDiscussionDetails'
+import DTDiscussionDetails from './components/DTDiscussionDetails'
+import ECRDiscussionDetails from './components/ECRDiscussionDetails'
 
 function Home() {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-6">Engineering Discussion Feed</h1>
-      <DiscussionFeed />
-    </div>
-  )
-}
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  
+  const handleRefresh = () => {
+    setRefreshTrigger(prev => prev + 1)
+  }
 
-function Analytics() {
   return (
     <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">Analytics</h1>
-      <p className="text-gray-600">Analytics page content goes here.</p>
-    </div>
-  )
-}
-
-function Settings() {
-  return (
-    <div>
-      <h1 className="text-3xl font-bold text-gray-900 mb-4">Settings</h1>
-      <p className="text-gray-600">Settings page content goes here.</p>
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-3xl font-bold text-gray-900">Activity Feed</h1>
+        <button
+          onClick={handleRefresh}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+        >
+          Refresh
+        </button>
+      </div>
+      <DiscussionFeed refreshTrigger={refreshTrigger} />
     </div>
   )
 }
@@ -44,9 +43,9 @@ function App() {
           <Route path="/components/:itemId" element={<ComponentDetail />} />
           <Route path="/suppliers" element={<SuppliersPage />} />
           <Route path="/suppliers/:supplierId" element={<SupplierDetail />} />
-          <Route path="/ecr/:documentId/review" element={<ECRReview />} />
-          <Route path="/analytics" element={<Analytics />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route path="/ecr/:documentId/details" element={<ECRDiscussionDetails />} />
+          <Route path="/sc-discussion/:discussionId" element={<SCDiscussionDetails />} />
+          <Route path="/dt-discussion/:discussionId" element={<DTDiscussionDetails />} />
         </Routes>
       </Layout>
     </BrowserRouter>

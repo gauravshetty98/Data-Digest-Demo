@@ -7,6 +7,10 @@ from pydantic import BaseModel
 from datetime import datetime
 from database import engine
 import uuid
+import traceback
+import logging
+
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Item Retrieval API")
 
@@ -50,7 +54,10 @@ async def get_discussions(
             "data": discussions
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_detail = str(e)
+        logger.error(f"Error in get_discussion_summary: {error_detail}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 @app.get("/api/machine-details", response_model=APIResponse)
@@ -88,7 +95,10 @@ async def get_machine_details(
             "data": items
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_detail = str(e)
+        logger.error(f"Error in get_discussion_summary: {error_detail}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 @app.get("/api/machine-details/{item_id}/parents", response_model=APIResponse)
@@ -122,7 +132,10 @@ async def get_item_parents(item_id: str):
             "data": parents
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_detail = str(e)
+        logger.error(f"Error in get_discussion_summary: {error_detail}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 @app.get("/api/machine-details/{item_id}/children", response_model=APIResponse)
@@ -150,7 +163,10 @@ async def get_item_children(
             "data": children
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_detail = str(e)
+        logger.error(f"Error in get_discussion_summary: {error_detail}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 @app.get("/api/discussions/{item_id:path}", response_model=APIResponse)
@@ -160,20 +176,20 @@ async def get_discussion_summary(
 ):
     """Retrieve items from discussion_summary table"""
     try:
-        query = "SELECT * FROM discussion_summary"
-        
         if item_id:
             # Use parameterized query to prevent SQL injection
-            query += " WHERE item_id = %s"
-        
-        query += " ORDER BY created_at DESC"
-        
-        if limit:
-            query += f" LIMIT {limit}"
-        
-        if item_id:
-            df = pd.read_sql(query, engine, params=(item_id,))
+            if limit:
+                # LIMIT must be in the SQL string (safe since limit is validated as int by FastAPI)
+                query_str = f"SELECT * FROM discussion_summary WHERE item_id = :item_id ORDER BY created_at DESC LIMIT {limit}"
+                query = text(query_str)
+                df = pd.read_sql(query, engine, params={"item_id": item_id})
+            else:
+                query = text("SELECT * FROM discussion_summary WHERE item_id = :item_id ORDER BY created_at DESC")
+                df = pd.read_sql(query, engine, params={"item_id": item_id})
         else:
+            query = "SELECT * FROM discussion_summary ORDER BY created_at DESC"
+            if limit:
+                query += f" LIMIT {limit}"
             df = pd.read_sql(query, engine)
             
         summaries = df.to_dict(orient='records')
@@ -184,7 +200,10 @@ async def get_discussion_summary(
             "data": summaries
         }
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_detail = str(e)
+        logger.error(f"Error in get_discussion_summary: {error_detail}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=error_detail)
     
 
 @app.get("/api/machine-details/{item_id}/impact", response_model=APIResponse)
@@ -257,7 +276,10 @@ async def get_item_impact(
     except HTTPException:
         raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        error_detail = str(e)
+        logger.error(f"Error in get_discussion_summary: {error_detail}")
+        logger.error(traceback.format_exc())
+        raise HTTPException(status_code=500, detail=error_detail)
 
 
 

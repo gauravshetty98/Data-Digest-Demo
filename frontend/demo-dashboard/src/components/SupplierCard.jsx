@@ -9,9 +9,6 @@ export default function SupplierCard({ supplier, onClick }) {
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
             {supplier.supplier_name || 'Unnamed Supplier'}
           </h3>
-          <p className="text-sm text-gray-500 font-mono">
-            ID: {supplier.supplier_id || 'N/A'}
-          </p>
         </div>
         {supplier.preferred_supplier_flag === 1 && (
           <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-semibold rounded">

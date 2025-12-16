@@ -70,7 +70,7 @@ def root():
 async def get_digest(
     channel_id: Optional[str] = Query(None, description="Slack Channel ID"),
     slack_token: Optional[str] = Query(None, description="Slack Bot Token"),
-    lookback_minutes: Optional[int] = Query(500, description="How many minutes to look back", ge=1, le=1440),
+    lookback_minutes: Optional[int] = Query(20, description="How many minutes to look back", ge=1, le=1440),
     csv_path: Optional[str] = Query(None, description="Path to BOM CSV file"),
     supplier_search: bool = Query(False, description="If true, also search supplier_name and primary_contact_name")
 ):

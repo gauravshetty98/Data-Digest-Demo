@@ -1,20 +1,24 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supplierAPI } from '../services/api'
+import { supplierAPI, discussionAPI } from '../services/api'
+import DiscussionCard from './DiscussionCard'
 
 export default function SupplierDetail() {
   const { supplierId } = useParams()
   const navigate = useNavigate()
   const [supplier, setSupplier] = useState(null)
   const [components, setComponents] = useState([])
+  const [discussions, setDiscussions] = useState([])
   const [loading, setLoading] = useState(true)
   const [loadingComponents, setLoadingComponents] = useState(false)
+  const [loadingDiscussions, setLoadingDiscussions] = useState(false)
   const [error, setError] = useState(null)
 
   useEffect(() => {
     if (supplierId) {
       fetchSupplierDetails()
       fetchSupplierComponents()
+      fetchSupplierDiscussions()
     }
   }, [supplierId])
 
@@ -53,6 +57,32 @@ export default function SupplierDetail() {
       setComponents([])
     } finally {
       setLoadingComponents(false)
+    }
+  }
+
+  const fetchSupplierDiscussions = async () => {
+    try {
+      setLoadingDiscussions(true)
+      const decodedSupplierId = decodeURIComponent(supplierId)
+      
+      // Fetch all discussions and filter by supplier_id
+      const response = await discussionAPI.getAllDiscussions()
+      
+      if (response.success && response.data) {
+        // Filter discussions that match this supplier_id
+        const filteredDiscussions = response.data.filter(discussion => {
+          const discussionSupplierId = discussion['supplier_id'] || discussion.supplier_id
+          return discussionSupplierId && discussionSupplierId.toString().trim() === decodedSupplierId.toString().trim()
+        })
+        setDiscussions(filteredDiscussions)
+      } else {
+        setDiscussions([])
+      }
+    } catch (err) {
+      console.error('Error fetching supplier discussions:', err)
+      setDiscussions([])
+    } finally {
+      setLoadingDiscussions(false)
     }
   }
 
@@ -97,7 +127,6 @@ export default function SupplierDetail() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold text-gray-900">{supplier.supplier_name || 'Unnamed Supplier'}</h1>
-        <p className="text-sm text-gray-500 font-mono mt-1">Supplier ID: {supplier.supplier_id}</p>
       </div>
 
       {/* Supplier Details */}
@@ -284,6 +313,28 @@ export default function SupplierDetail() {
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+      </div>
+
+      {/* Supplier Discussions */}
+      <div className="bg-white rounded-lg shadow-md border border-gray-200 p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Supplier Issues & Updates</h2>
+        
+        {loadingDiscussions ? (
+          <div className="text-gray-500">Loading discussions...</div>
+        ) : discussions.length === 0 ? (
+          <div className="text-gray-500">No discussions found for this supplier.</div>
+        ) : (
+          <div className="space-y-4">
+            {discussions.map((discussion, index) => (
+              <DiscussionCard
+                key={discussion.id || discussion.discussion_id || index}
+                discussion={discussion}
+                onClick={(componentId) => navigate(`/components/${encodeURIComponent(componentId)}`)}
+                onUpdate={fetchSupplierDiscussions}
+              />
+            ))}
           </div>
         )}
       </div>

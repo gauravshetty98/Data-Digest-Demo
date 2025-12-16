@@ -1,20 +1,16 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { discussionAPI, ecrAPI } from '../services/api'
 import DiscussionCard from './DiscussionCard'
 import ECRCard from './ECRCard'
 
-export default function DiscussionFeed() {
+export default function DiscussionFeed({ refreshTrigger }) {
   const navigate = useNavigate()
   const [feedItems, setFeedItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  useEffect(() => {
-    fetchFeedItems()
-  }, [])
-
-  const fetchFeedItems = async () => {
+  const fetchFeedItems = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -82,7 +78,11 @@ export default function DiscussionFeed() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchFeedItems()
+  }, [refreshTrigger, fetchFeedItems])
 
   if (loading) {
     return (
@@ -116,16 +116,6 @@ export default function DiscussionFeed() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-900">Engineering Feed</h2>
-        <button
-          onClick={fetchFeedItems}
-          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-        >
-          Refresh
-        </button>
-      </div>
-      
       {error && (
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
           <p className="text-yellow-800">Warning: {error}</p>

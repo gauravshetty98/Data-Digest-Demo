@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useState } from 'react'
-import { Home, BarChart3, Settings, Package, Truck } from 'lucide-react'
+import { Home, Package, Truck } from 'lucide-react'
 import { discussionAPI } from '../services/api'
 
 export default function Layout({ children }) {
@@ -42,8 +42,6 @@ export default function Layout({ children }) {
     { path: '/', label: 'Home', icon: Home },
     { path: '/components', label: 'Components', icon: Package },
     { path: '/suppliers', label: 'Suppliers', icon: Truck },
-    { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-    { path: '/settings', label: 'Settings', icon: Settings },
   ]
 
   return (
