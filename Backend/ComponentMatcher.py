@@ -15,20 +15,18 @@ class ComponentMatcher:
         self.engine = engine
         self.machine_table = source or "machine_details"
         self.fuzzy_cutoff = 50
-        # ---- load components ----
+        
         if self.engine is None:
-            # old behavior: CSV
             self.df = pd.read_csv(source)
         else:
-            # new behavior: DB
             self.df = pd.read_sql_query(
                 f"SELECT * FROM {self.machine_table}",
                 self.engine
             )
 
         self.nlp = spacy.load("en_core_web_sm")
-        # Build your searchable list from machine_details
-        # (use both name + internal_part_name)
+        
+        # Build searchable list from machine_details (use both name + internal_part_name)
         self.component_terms = (
             self.df[["name", "internal_part_name"]]
             .fillna("")
@@ -38,7 +36,7 @@ class ComponentMatcher:
             .tolist()
         )
 
-        # ---- suppliers (lazy-loaded) ----
+        
         self.supplier_df = None
         self.supplier_terms = None
     
@@ -92,7 +90,7 @@ class ComponentMatcher:
                 .tolist()
             )
 
-    # keep your existing _extract_nouns (or keywords) + fuzzy matching helpers as-is
+    
 
     def find_components(self, texts, supplier_details: bool = False):
         """
@@ -103,12 +101,12 @@ class ComponentMatcher:
         if isinstance(texts, str):
             texts = [texts]
 
-        # your existing keyword extraction
+        
         keywords = []
         for t in texts:
             keywords.extend(self._extract_nouns(t))  
 
-        # ---- component matches (existing logic, just use self.component_terms) ----
+        # identifying component matches
         comp_matches = self._fuzzy_match_to_df(
             keywords=keywords,
             choices=self.component_terms,
@@ -116,7 +114,7 @@ class ComponentMatcher:
             matched_text_col="matched_component_text",
         )
 
-        # ---- supplier matches (optional) ----
+        # identifying supplier matches
         if supplier_details:
             self._load_suppliers()
             supp_matches = self._fuzzy_match_to_df(

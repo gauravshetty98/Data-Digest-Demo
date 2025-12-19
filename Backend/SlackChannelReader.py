@@ -3,6 +3,10 @@ import time
 from dotenv import load_dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+from decimal import Decimal, ROUND_DOWN
+
+import logging
+logger = logging.getLogger("slack_reader")
 
 # Load environment variables (can be called here or in the main execution script)
 load_dotenv()
@@ -61,21 +65,32 @@ class SlackChannelReader:
             return []
 
         # Calculate the timestamp
-        oldest_timestamp = time.time() - (lookback_minutes * 60)
+        oldest_timestamp = Decimal(str(time.time())) - Decimal(lookback_minutes * 60)
+        oldest_str = format(oldest_timestamp.quantize(Decimal("0.000001"), rounding=ROUND_DOWN), "f")
+
         
         if print_output:
             print(f"Connecting to Slack to fetch messages from {target_channel}...\n")
+
+        logger.info(
+            "extract_messages start channel=%s lookback=%s oldest_epoch=%.3f",
+            target_channel, lookback_minutes, oldest_timestamp
+        )
 
         extracted_data = []
 
         try:
             result = self.client.conversations_history(
                 channel=target_channel,
-                oldest=oldest_timestamp,
+                oldest=oldest_str,
+                inclusive= True,
                 limit=100
             )
-
+            print(result)
             messages = result["messages"]
+
+            logger.info("conversations_history returned raw=%d has_more=%s", len(messages), result.get("has_more"))
+
 
             if not messages:
                 if print_output: print("No messages found! (Did you invite the bot?)")
@@ -116,6 +131,10 @@ class SlackChannelReader:
 
         except SlackApiError as e:
             error_code = e.response.get('error', 'unknown_error')
+
+            err = e.response.get("error", "unknown_error") if getattr(e, "response", None) else "no_response"
+            logger.exception("SlackApiError channel=%s lookback=%s error=%s", target_channel, lookback_minutes, err)
+
             error_msg = f"Slack API error: {error_code}"
             if error_code == 'not_in_channel':
                 error_msg += ". Bot is not in the channel. Go to the Slack channel and type '/invite @YourBotName'"
@@ -139,6 +158,7 @@ if __name__ == "__main__":
         
         # Run the extraction
         messages = bot.extract_messages()
+
         
         # Example: Doing something with the returned list
         print(f"\nSummary: Successfully extracted {len(messages)} valid messages.")

@@ -119,7 +119,7 @@ async def get_item_parents(item_id: str):
                 "data": []
             }
         
-        # Create placeholders for the query
+        
         placeholders = ','.join([f"'{pid}'" for pid in parent_ids])
         query = f"SELECT * FROM machine_details WHERE item IN ({placeholders}) ORDER BY item"
         
@@ -177,9 +177,9 @@ async def get_discussion_summary(
     """Retrieve items from discussion_summary table"""
     try:
         if item_id:
-            # Use parameterized query to prevent SQL injection
+            
             if limit:
-                # LIMIT must be in the SQL string (safe since limit is validated as int by FastAPI)
+                
                 query_str = f"SELECT * FROM discussion_summary WHERE item_id = :item_id ORDER BY created_at DESC LIMIT {limit}"
                 query = text(query_str)
                 df = pd.read_sql(query, engine, params={"item_id": item_id})
@@ -226,7 +226,7 @@ async def get_item_impact(
         item_row = df_item.iloc[0].to_dict()
         child_id = item_row.get("child_identifier")
 
-        # Normalize UUID (only if your column type is uuid)
+        
         child_uuid = None
         if child_id is not None and str(child_id).strip() != "":
             child_uuid = uuid.UUID(str(child_id))

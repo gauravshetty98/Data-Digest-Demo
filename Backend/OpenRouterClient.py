@@ -69,11 +69,11 @@ class OpenRouterClient:
         """
         messages = []
         
-        # Add system message if provided
+        
         if system_prompt:
             messages.append({"role": "system", "content": system_prompt})
         
-        # Add user message
+        
         messages.append({"role": "user", "content": message})
         return self.chat(messages, temperature=temperature, max_tokens=max_tokens, **kwargs)
     
@@ -201,7 +201,6 @@ def quick_chat(message: str, api_key: Optional[str] = None) -> str:
 
 
 if __name__ == "__main__":
-    # Example usage
     print("Testing OpenRouter connection...\n")
     
     # Method 1: Using the class

@@ -17,6 +17,14 @@ from ComponentMatcher import ComponentMatcher
 from OpenRouterClient import OpenRouterClient
 from PromptDigest import get_manufacturing_digest_prompt, parse_llm_output, get_supplier_digest_prompt
 
+import time
+import uuid
+import logging
+
+logger = logging.getLogger("digest")
+logging.basicConfig(level=logging.INFO)
+
+
 # Load environment variables
 load_dotenv()
 
@@ -54,7 +62,6 @@ class DiscussionSummaryUpdateRequest(BaseModel):
     supplier_id: Optional[str] = None
     
     class Config:
-        # Allow string numbers to be converted
         json_encoders = {
             datetime: lambda v: v.isoformat() if v else None
         }
@@ -72,7 +79,8 @@ async def get_digest(
     slack_token: Optional[str] = Query(None, description="Slack Bot Token"),
     lookback_minutes: Optional[int] = Query(20, description="How many minutes to look back", ge=1, le=1440),
     csv_path: Optional[str] = Query(None, description="Path to BOM CSV file"),
-    supplier_search: bool = Query(False, description="If true, also search supplier_name and primary_contact_name")
+    supplier_search: bool = Query(False, description="If true, also search supplier_name and primary_contact_name"),
+    debug: bool = Query(False, description="Return debug info")
 ):
     """
     Extract Slack messages, match components, and generate a digest.
@@ -87,6 +95,14 @@ async def get_digest(
         bom_path = csv_path or None
         or_api_key = os.getenv("OPEN_ROUTER_API_KEY")
         
+        trace_id = str(uuid.uuid4())[:8]
+        oldest = time.time() - (lookback_minutes * 60)
+
+        logger.info(
+            f"[{trace_id}] /api/digest channel={channel} lookback={lookback_minutes} "
+            f"token_present={bool(token)} oldest={oldest}"
+        )
+
         # Validate required credentials
         if not token:
             return DigestResponse(
@@ -113,9 +129,28 @@ async def get_digest(
         # Extract messages from Slack
         slack_reader = SlackChannelReader(token=token, default_channel_id=channel)
         try:
-            messages = slack_reader.extract_messages(lookback_minutes=lookback_minutes, print_output=False)
+            messages = slack_reader.extract_messages(channel_id=channel, lookback_minutes=lookback_minutes, print_output=debug)
+
+            logger.info(f"[{trace_id}] slack extracted={len(messages)}")
+
+            if debug:
+                safe_token = (token[-6:] if token else None)
+                return JSONResponse({
+                    "success": True,
+                    "trace_id": trace_id,
+                    "debug": {
+                        "server_time_epoch": time.time(),
+                        "channel": channel,
+                        "lookback_minutes": lookback_minutes,
+                        "oldest_epoch": oldest,
+                        "token_suffix": safe_token,
+                        "extracted_count": len(messages),
+                        "first_ts": (messages[0]["timestamp"] if messages else None),
+                        "last_ts": (messages[-1]["timestamp"] if messages else None),
+                        "sample_text": (messages[0]["text"][:120] if messages else None),
+                    }
+                })
         except ValueError as e:
-            # This is a Slack API error that was converted to ValueError
             return DigestResponse(
                 success=False,
                 message="Error fetching messages from Slack",
@@ -137,8 +172,9 @@ async def get_digest(
         print("step 1")
         message_texts = [msg["text"] for msg in messages if msg["text"]]
         matcher = ComponentMatcher(engine=engine)
+        
+        
         # Find Matching Components
-        # find_components always returns a tuple (comp_df, supp_df), even when supplier_details=False
         if supplier_search == True:
             comp_df, supp_df =  matcher.find_components(message_texts, supplier_details=True)
         else:
@@ -208,7 +244,7 @@ async def get_digest(
         )
     
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n Error: {e}")
         return DigestResponse(
             success=False,
             message="An error occurred",

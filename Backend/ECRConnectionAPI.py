@@ -55,9 +55,9 @@ async def create_ecr(request: ECRCreationRequest):
     Create ECR from discussion summaries and generate Word document
     """
     try:
-        # Create database session
+        
         with Session(engine) as session:
-            # Fetch discussion summaries based on discussion_ids
+            
             
             # Get discussion summaries, latest updates, and component_ids
             discussion_data = []
@@ -116,7 +116,7 @@ async def create_ecr(request: ECRCreationRequest):
             finish = component_result[10] or ""
             notes = component_result[11] or ""
         
-        # Get prompts from get_ecr_editing_prompt
+        
         system_prompt, user_prompt = get_ecr_editing_prompt(
             discussion_summaries=combined_discussion_summaries,
             latest_updates=combined_latest_updates,
@@ -163,19 +163,17 @@ async def create_ecr(request: ECRCreationRequest):
 
         ecr_title = ecr_data.get('proposed_change', {}).get('detailed_description', '')    
         print(ecr_title)
-        # Generate unique document ID
+        
         document_id = str(uuid.uuid4())
         document_filename = f"ecr_{document_id}.docx"
 
         document_path = DOC_DIR / f"ecr_{document_id}.docx"
         document_path = str(document_path)
         
-        #document_path = f"/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_document_store/{document_filename}"
         
         #Mapping and creating document
         template_path = BASE_DIR / "ECR_JSON_TEMPLATE" / "Docxtl_ECR_Template.docx"
         template_path = str(template_path)
-        #template_path = "/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_JSON_TEMPLATE/Docxtl_ECR_Template.docx"
         doc = DocxTemplate(template_path)
         doc.render(ecr_data)
 
@@ -249,12 +247,10 @@ async def get_ecr_document(document_id: str):
     try:
         document_path = DOC_DIR / f"ecr_{document_id}.docx"
         document_path = str(document_path)
-        #document_path = f"/Users/gauravshetty/Documents/othjer projects/EverCurrent - Demo/Code/Backend/ECR_document_store/ecr_{document_id}.docx"
         
         if not os.path.exists(document_path):
             raise HTTPException(status_code=404, detail="ECR document not found")
         
-        # Return the file for download
         return FileResponse(
             path=document_path,
             filename=f"ecr_{document_id}.docx",
