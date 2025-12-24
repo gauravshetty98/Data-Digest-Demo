@@ -48,7 +48,7 @@ Scrolling further reveals workflow actions powered by the captured history, incl
 - See **suppliers for the component**
 - Explore **other discussions related to this component**
 
-![Discussion details page (scrolled)](../assets/DT_details_page.png)
+![Discussion details page (scrolled)](../assets/DT_details_page_2.png)
 
 ---
 
