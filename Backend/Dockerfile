@@ -11,6 +11,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy all backend code (includes your other python files)
 COPY . .
 
-# Default (we'll override per service in docker-compose)
+# Default (override per service in docker-compose)
 EXPOSE 8000
 CMD ["uvicorn", "DiscussionDigestAPI:app", "--host", "0.0.0.0", "--port", "8000"]
